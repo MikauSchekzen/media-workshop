@@ -6,7 +6,7 @@ Currently very VERY basic
 
 ## Usage
 
-Enter "node . <task>"
+Enter "node . task"
 
 ```
 task: The task you want to run. Can currently only be 'rip-mp3'

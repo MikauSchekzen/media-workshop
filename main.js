@@ -12,11 +12,11 @@ var downloadTasks = [
 ];
 
 // Get parameter(s)
-var doClean = false;
-var task = process.argv[2], processTask = "", processFrom = "", processTo = "";
+var doClean = false, argVars = process.argv;
+var task = argVars[2], processTask = "", processFrom = "", processTo = "";
 var a, str, testStr;
-for(a = 3;a < process.argv.length;a++) {
-	str = argv[a];
+for(a = 3;a < argVars.length;a++) {
+	str = argVars[a];
 	// Set cleaning flag
 	if(str === "--clean") {
 		doClean = true;
@@ -66,7 +66,7 @@ var performTask = function(files, task) {
 			file = files[a];
 			cleaningList.push(file);
 			savePath = "output/" + path.basename(file, path.extname(file));
-			console.log("Processing file " + savePath);
+			console.log("Processing file " + file);
 			switch(task) {
 				case "rip-mp3":
 				case "rip_mp3":
@@ -87,7 +87,7 @@ var performTask = function(files, task) {
 					switch(processTo) {
 						case "mp4":
 						case "flv":
-							cmds.push("libx264", "-preset", "fast");
+							cmds.push("libx264", "-preset", "fast", "-qscale", "25", "-c:a", "libmp3lame", "-b:a", "128k");
 							break;
 						case "ogv":
 							cmds.push("libtheora");
@@ -99,10 +99,11 @@ var performTask = function(files, task) {
 							cmds.push("copy");
 							break;
 					}
+					cmds.push(savePath);
 					break;
 				case "decode-gif":
-					cmds = ["-i", file, "-c:v", "libvpx", "-crf", "10", "-qmin", "0", "-qmax", "40"];
-					savePath += ".webm";
+					cmds = ["-i", file, "-c:v", "libx264", "-preset", "fast", "-qscale", "25"];
+					savePath += ".mp4";
 					cmds.push(savePath);
 					break;
 			}

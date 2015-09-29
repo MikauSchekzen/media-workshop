@@ -1,3 +1,6 @@
 **/*.swp
 list.txt
 **/Session.vim
+input/
+output/
+output_music/

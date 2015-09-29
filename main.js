@@ -4,12 +4,26 @@ var process = require("process");
 var glob = require("glob").sync;
 var fs = require("fs");
 
+// Get parameter(s)
 var task = process.argv[2];
 
+// Create directories, if they don't exist yet
+try {
+	fs.mkdirSync("input");
+} catch(e) {}
+try {
+	fs.mkdirSync("output");
+} catch(e) {}
+try {
+	fs.mkdirSync("output_music");
+} catch(e) {}
+
+// Download youtube videos
 console.log("Downloading videos...");
 spawn("youtube-dl", ["-a", "list.txt", "-o", "input/%(title)s.%(ext)s", "--restrict-filenames"]);
 console.log("Video download complete");
 
+// Process videos
 var files = glob("input/*.+(mp4|flv)");
 var a, file, savePath, cleaningList = [];
 if(task !== undefined) {

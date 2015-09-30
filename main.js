@@ -56,6 +56,8 @@ if(task === "rip_mp3" || task === "ripmp3" || task === "rip-mp3") {
 	files = glob("input/*.+(mp4|flv)");
 } else if(task === "decode-gif") {
 	files = glob("input/*.gif");
+} else if(task === "game_bgm") {
+	files = glob("input/*.+(mp3|ogg)");
 } else {
 	files = glob("input/*." + processFrom);
 }
@@ -104,6 +106,11 @@ var performTask = function(files, task) {
 				case "decode-gif":
 					cmds = ["-i", file, "-c:v", "libx264", "-preset", "fast", "-qscale", "25"];
 					savePath += ".mp4";
+					cmds.push(savePath);
+					break;
+				case "game_bgm":
+					cmds = ["-i", file, "-c:a", "libvorbis"];
+					savePath += ".ogg";
 					cmds.push(savePath);
 					break;
 			}

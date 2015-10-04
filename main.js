@@ -53,7 +53,7 @@ if(downloadTasks.indexOf(task) !== -1) {
 // Process videos
 var files;
 if(task === "rip_mp3" || task === "ripmp3" || task === "rip-mp3") {
-	files = glob("input/*.+(mp4|flv)");
+	files = glob("input/*.+(mp4|flv|mkv|webm)");
 } else if(task === "decode-gif") {
 	files = glob("input/*.gif");
 } else {

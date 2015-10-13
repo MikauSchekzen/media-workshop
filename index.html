@@ -1,0 +1,95 @@
+<html>
+	<head>
+		<title>Media Workshop</title>
+		<script type="text/javascript" src="src/main.js"></script>
+		<style type="text/css">
+		#controls {
+			border: 1px solid black;
+			position: absolute;
+			width: 400px;
+			height: 120px;
+			left: 4px;
+			top: 4px;
+		}
+		#controls button {
+			position: absolute;
+			width: 140px;
+			height: 24px;
+		}
+		#download_from_yt {
+			left: 4px;
+			top: 4px;
+		}
+		#download_from_yt_list {
+			position: absolute;
+			left: 148px;
+			top: 4px;
+			width: 220px;
+			height: 24px;
+		}
+		#transcode_formats {
+			position: absolute;
+			width: 80px;
+			height: 24px;
+			left: 4px;
+			top: 40px;
+		}
+		#transcode {
+			left: 90px;
+			top: 40px;
+		}
+
+		#status {
+			border: 1px solid black;
+			position: absolute;
+			width: 240px;
+			height: 120px;
+			left: 404px;
+			top: 4px;
+		}
+		#progressbar {
+			position: absolute;
+			width: 220px;
+			height: 24px;
+			left: 10px;
+			top: 10px;
+		}
+		#progresstask {
+			position: absolute;
+			width: 220px;
+			height: 24px;
+			left: 10px;
+			top: 40px;
+		}
+		#progressitem {
+			position: absolute;
+			width: 220px;
+			height: 24px;
+			left: 10px;
+			top: 68px;
+		}
+		</style>
+	</head>
+	<body style="background-color:#343434">
+		<div id="controls">
+			<button id="download_from_yt" onclick="taskDownloadFromYT();">Download from YT</button>
+			<input type="text" id="download_from_yt_list">
+			<button id="transcode" onclick="taskTranscode();">Transcode</button>
+			<select id="transcode_formats">
+				<option value="">--Audio formats--</option>
+				<option value="mp3">MP3</option>
+				<option value="ogg">OGG</option>
+				<option value="">--Video formats--</option>
+				<option value="mp4">MP4</option>
+				<option value="ogv">OGV</option>
+				<option value="mkv">MKV</option>
+				<option value="flv">FLV</option>
+			</select>
+		</div>
+		<div id="status">
+			<progress id="progressbar" max="1" value="0"></progress>
+			<input type="text" id="progresstask" disabled value="Idle">
+			<input type="text" id="progressitem" disabled value="">
+		</div>
+	</body>
+</html>

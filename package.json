@@ -1,6 +1,12 @@
 {
 	"name": "video-workshop",
 	"version": "0.0.1",
-	"main": "main.js",
-	"private": true
+	"main": "index.html",
+	"private": true,
+	"devDependencies": {
+		"grunt-contrib-concat": "latest"
+	},
+	"scripts": {
+		"start": "nw ."
+	}
 }

@@ -4,7 +4,9 @@
 	"main": "index.html",
 	"private": true,
 	"devDependencies": {
-		"grunt-contrib-concat": "latest"
+		"grunt-contrib-concat": "latest",
+		"ytdl-core": "latest",
+		"fluent-ffmpeg": "latest"
 	},
 	"scripts": {
 		"start": "nw ."

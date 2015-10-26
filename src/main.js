@@ -109,6 +109,9 @@ var taskTranscode = function() {
 		else if(fmt === "ogg") {
 			encoder.audio = "libvorbis";
 		}
+		else if(fmt === "m4a") {
+			encoder.audio = "libvo_aacenc";
+		}
 		else if(fmt === "mp4") {
 			encoder.video = "libx264";
 			extraCmds = ["-preset", "veryfast", "-crf", "25"];
@@ -126,7 +129,7 @@ var taskTranscode = function() {
 			extraCmds = ["-preset", "veryfast", "-crf", "25"];
 		}
 		// Determine output type
-		if(fmt === "mp3" || fmt === "ogg") {
+		if(fmt === "mp3" || fmt === "ogg" || fmt === "m4a") {
 			transcodeType = "audio";
 		}
 		else if(fmt === "mp4" || fmt === "flv" || fmt === "ogv" || fmt === "mkv") {

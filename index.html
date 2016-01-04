@@ -38,6 +38,10 @@
 			left: 90px;
 			top: 40px;
 		}
+		#mux {
+			left: 90px;
+			top: 70px;
+		}
 
 		#status {
 			border: 1px solid black;
@@ -75,16 +79,19 @@
 			<button id="download_from_yt" onclick="taskDownloadFromYT();">Download from YT</button>
 			<input type="text" id="download_from_yt_list">
 			<button id="transcode" onclick="taskTranscode();">Transcode</button>
+			<button id="mux" onclick="taskMux();">Mux</button>
 			<select id="transcode_formats">
 				<option value="">--Audio formats--</option>
 				<option value="mp3">MP3</option>
 				<option value="ogg">OGG</option>
 				<option value="m4a">M4A</option>
+				<option value="rmmv">RPG Maker MV</option>
 				<option value="">--Video formats--</option>
 				<option value="mp4">MP4</option>
 				<option value="ogv">OGV</option>
 				<option value="mkv">MKV</option>
 				<option value="flv">FLV</option>
+				<option value="gif">GIF</option>
 			</select>
 		</div>
 		<div id="status">

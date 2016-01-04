@@ -1,10 +1,10 @@
 // Import modules
 var fs = require("fs");
 var path = require("path");
-var ytdl = require("ytdl-core");
-var fluent = require("fluent-ffmpeg");
 var glob = require("glob");
 var spawn = require("child_process").spawn;
+
+var actions = [];
 
 
 // Make directories, if they don't exist yet
@@ -19,6 +19,7 @@ try {
 var controlElementNames = [
 	"download_from_yt",
 	"transcode",
+	'mux',
 	"transcode_formats"
 ];
 
@@ -58,6 +59,16 @@ var taskDone = function() {
 	progressElems.bar.value = "0";
 	progressElems.task.value = "Idle";
 	progressElems.item.value = "";
+	doAction();
+};
+
+var doAction = function() {
+	if(actions.length > 0) {
+		var action = actions.shift();
+		if(this[action.cmd]) {
+			this[action.cmd].apply(this, action.args);
+		}
+	}
 };
 
 // Downloading from YouTube
@@ -98,6 +109,30 @@ var taskDownloadFromYT = function() {
 // Transcoding
 var taskTranscode = function() {
 	var fmt = document.getElementById("transcode_formats").value;
+	if(fmt === "rmmv") {
+		actions.push({cmd: "transcode", args: ["ogg"]});
+		actions.push({cmd: "transcode", args: ["m4a"]})
+	}
+	else {
+		actions.push({cmd: "transcode", args: [fmt]});
+	}
+	doAction();
+};
+
+// Muxing
+var taskMux = function() {
+	var fmt = document.getElementById("transcode_formats").value;
+	if(fmt === "rmmv") {
+		actions.push({cmd: "mux", args: ["ogg"]});
+		actions.push({cmd: "mux", args: ["m4a"]})
+	}
+	else {
+		actions.push({cmd: "mux", args: [fmt]});
+	}
+	doAction();
+};
+
+var transcode = function(fmt) {
 	var transcodeType = "", encoder = {audio: "", video: ""};
 	var extraCmds = [];
 	if(fmt !== "") {
@@ -128,11 +163,16 @@ var taskTranscode = function() {
 			encoder.video = "libx264";
 			extraCmds = ["-preset", "veryfast", "-crf", "25"];
 		}
+		else if(fmt === "gif") {
+			encoder.video = "";
+			encoder.audio = "";
+			extraCmds = ["-pix_fmt", "rgb24", "-r", "12"];
+		}
 		// Determine output type
 		if(fmt === "mp3" || fmt === "ogg" || fmt === "m4a") {
 			transcodeType = "audio";
 		}
-		else if(fmt === "mp4" || fmt === "flv" || fmt === "ogv" || fmt === "mkv") {
+		else if(fmt === "mp4" || fmt === "flv" || fmt === "ogv" || fmt === "mkv" || fmt === "gif") {
 			transcodeType = "video";
 		}
 		// Do output
@@ -149,14 +189,24 @@ var taskTranscode = function() {
 				// Run FFMPEG for file
 				var proc, cmds;
 				if(transcodeType === "audio") {
-					cmds = ["-y", "-i", file, "-c:a", encoder.audio, "-b:a", "128k"];
+					cmds = ["-y", "-i", file];
 					cmds = cmds.concat(extraCmds);
+					if(encoder.audio !== "") {
+						cmds.push("-c:a", encoder.audio, "-b:a", "128k");
+					}
 					cmds.push(output);
 					proc = spawn("ffmpeg", cmds);
 				}
 				else if(transcodeType === "video") {
-					cmds = ["-y", "-i", file, "-c:a", encoder.audio, "-b:a", "128k", "-c:v", encoder.video];
+					cmds = ["-y", "-i", file];
 					cmds = cmds.concat(extraCmds);
+					if(encoder.video !== "") {
+						cmds.push("-c:v", encoder.video);
+					}
+					if(encoder.audio !== "") {
+						cmds.push("-c:a", encoder.audio, "-b:a", "128k");
+					}
+					console.log(cmds);
 					cmds.push(output);
 					proc = spawn("ffmpeg", cmds);
 				}
@@ -210,4 +260,88 @@ var taskTranscode = function() {
 			}
 		});
 	}
+};
+
+var mux = function(fmt) {
+	var transcodeType = "";
+	var extraCmds = [];
+	// Determine output type
+	if(fmt === "mp3" || fmt === "ogg" || fmt === "m4a") {
+		transcodeType = "audio";
+	}
+	else if(fmt === "mp4" || fmt === "flv" || fmt === "ogv" || fmt === "mkv") {
+		transcodeType = "video";
+	}
+	var doFunc = function(files) {
+		if(files.length > 0) {
+			var file = files.splice(0, 1)[0];
+			var filename = path.basename(file);
+			var basename = path.basename(file, path.extname(file));
+			var output = 'output/' + basename + '.' + fmt;
+			// Set progress item
+			var progressElems = getProgressElems();
+			progressElems.item.value = filename;
+			// Run FFMPEG for file
+			var proc, cmds;
+			if(transcodeType === "audio") {
+				cmds = ["-y", "-i", file, "-c:a", 'copy'];
+				cmds = cmds.concat(extraCmds);
+				cmds.push(output);
+				proc = spawn("ffmpeg", cmds);
+			}
+			else if(transcodeType === "video") {
+				cmds = ["-y", "-i", file, "-c:a", 'copy', "-c:v", 'copy'];
+				cmds = cmds.concat(extraCmds);
+				cmds.push(output);
+				proc = spawn("ffmpeg", cmds);
+			}
+			// Set callback
+			if(proc) {
+				proc.on("close", function() {
+					var progressElems = getProgressElems();
+					var prog = parseInt(progressElems.bar.value) + 1;
+					progressElems.bar.value = prog.toString();
+					doFunc(files);
+				});
+				proc.stderr.on("data", function(data) {
+					var msg = data.toString();
+					var progressElems = getProgressElems();
+					// Get duration
+					var re = /Duration: (\d+):(\d+):(\d+)/i;
+					var result = re.exec(msg);
+					var hour, minute, second, duration;
+					if(result) {
+						hour = parseInt(result[1]);
+						minute = parseInt(result[2]);
+						second = parseInt(result[3]);
+						duration = second + (minute * 60) + ((hour * 60) * 60);
+						progressElems.bar.max = duration.toString();
+					}
+					// Get progress
+					re = /time=(\d+):(\d+):(\d+)/i;
+					result = re.exec(msg);
+					if(result) {
+						hour = parseInt(result[1]);
+						minute = parseInt(result[2]);
+						second = parseInt(result[3]);
+						duration = second + (minute * 60) + ((hour * 60) * 60);
+						progressElems.bar.value = duration.toString();
+					}
+				});
+			}
+		}
+		else {
+			// Unlock controls
+			taskDone();
+			unlockControls();
+		}
+	};
+	glob("input/*", {}, function(err, files) {
+		if(files.length > 0) {
+			lockControls();
+			var progressElems = getProgressElems();
+			progressElems.task.value = "Muxing";
+			doFunc(files);
+		}
+	});
 };

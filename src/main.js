@@ -148,6 +148,9 @@ var transcode = function(fmt) {
 		else if(fmt === "m4a") {
 			encoder.audio = "aac";
 		}
+    else if(fmt === "wav") {
+      encoder.audio = "";
+    }
 		else if(fmt === "mp4") {
 			encoder.video = "libx264";
 			extraCmds = ["-preset", "veryfast", "-crf", "25"];
@@ -170,7 +173,7 @@ var transcode = function(fmt) {
 			extraCmds = ["-pix_fmt", "rgb24", "-r", "12"];
 		}
 		// Determine output type
-		if(fmt === "mp3" || fmt === "ogg" || fmt === "m4a") {
+		if(fmt === "mp3" || fmt === "ogg" || fmt === "m4a" || fmt === "wav") {
 			transcodeType = "audio";
 		}
 		else if(fmt === "mp4" || fmt === "flv" || fmt === "ogv" || fmt === "mkv" || fmt === "gif") {

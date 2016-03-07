@@ -135,6 +135,7 @@ var taskMux = function() {
 var transcode = function(fmt) {
 	var transcodeType = "", encoder = {audio: "", video: ""};
 	var extraCmds = [];
+	var baseCmds = ["-map_metadata", "-1"];
 	if(fmt !== "") {
 		// Determine encoder
 		encoder.audio = "libmp3lame";
@@ -145,7 +146,7 @@ var transcode = function(fmt) {
 			encoder.audio = "libvorbis";
 		}
 		else if(fmt === "m4a") {
-			encoder.audio = "libvo_aacenc";
+			encoder.audio = "aac";
 		}
 		else if(fmt === "mp4") {
 			encoder.video = "libx264";
@@ -190,6 +191,7 @@ var transcode = function(fmt) {
 				var proc, cmds;
 				if(transcodeType === "audio") {
 					cmds = ["-y", "-i", file];
+					cmds = cmds.concat(baseCmds);
 					cmds = cmds.concat(extraCmds);
 					if(encoder.audio !== "") {
 						cmds.push("-c:a", encoder.audio, "-b:a", "128k");

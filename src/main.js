@@ -197,19 +197,20 @@ var transcode = function(fmt) {
 					cmds = cmds.concat(baseCmds);
 					cmds = cmds.concat(extraCmds);
 					if(encoder.audio !== "") {
-						cmds.push("-c:a", encoder.audio, "-b:a", "128k");
+						cmds.push("-c:a", encoder.audio, "-qscale:a", "5");
 					}
 					cmds.push(output);
+          console.log(cmds);
 					proc = spawn("ffmpeg", cmds);
 				}
 				else if(transcodeType === "video") {
 					cmds = ["-y", "-i", file];
 					cmds = cmds.concat(extraCmds);
 					if(encoder.video !== "") {
-						cmds.push("-c:v", encoder.video);
+						cmds.push("-c:v", encoder.video, "-qscale:v", "6");
 					}
 					if(encoder.audio !== "") {
-						cmds.push("-c:a", encoder.audio, "-b:a", "128k");
+						cmds.push("-c:a", encoder.audio, "-qscale:a", "5");
 					}
 					console.log(cmds);
 					cmds.push(output);

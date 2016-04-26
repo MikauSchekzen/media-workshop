@@ -8,6 +8,10 @@
 		"ytdl-core": "latest",
 		"fluent-ffmpeg": "latest"
 	},
+  "window": {
+    "width": 1024,
+    "height": 512
+  },
 	"scripts": {
 		"start": "nw ."
 	}

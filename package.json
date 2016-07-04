@@ -1,18 +1,18 @@
 {
-	"name": "video-workshop",
-	"version": "0.0.1",
-	"main": "index.html",
-	"private": true,
-	"devDependencies": {
-		"grunt-contrib-concat": "latest",
-		"ytdl-core": "latest",
-		"fluent-ffmpeg": "latest"
-	},
+  "name": "video-workshop",
+  "version": "0.0.1",
+  "main": "index.html",
+  "private": true,
+  "devDependencies": {
+    "concatenate-files": "^0.1.1",
+    "fluent-ffmpeg": "latest",
+    "ytdl-core": "latest"
+  },
   "window": {
     "width": 1024,
     "height": 512
   },
-	"scripts": {
-		"start": "nw ."
-	}
+  "scripts": {
+    "start": "nw ."
+  }
 }

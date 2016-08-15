@@ -4,5 +4,6 @@ list.txt
 input/
 output/
 output_music/
-node_modules
+node_modules/
 *.log
+.atom-build.json

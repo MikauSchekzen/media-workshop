@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<title>Media Workshop</title>
-		<script type="text/javascript" src="src/main.js"></script>
+		<script type="text/javascript" src="src/app.js"></script>
 		<style type="text/css">
 		#controls {
 			border: 1px solid black;
@@ -76,10 +76,10 @@
 	</head>
 	<body style="background-color:#343434">
 		<div id="controls">
-			<button id="download_from_yt" onclick="taskDownloadFromYT();">Download from YT</button>
+			<button id="download_from_yt" onclick="Core.startTask('youtube-dl');">Download from YT</button>
 			<input type="text" id="download_from_yt_list">
-			<button id="transcode" onclick="taskTranscode();">Transcode</button>
-			<button id="mux" onclick="taskMux();">Mux</button>
+			<button id="transcode" onclick="Core.startTask('transcode');">Transcode</button>
+			<button id="mux" onclick="Core.startTask('mux');">Mux</button>
 			<select id="transcode_formats">
 				<option value="">--Audio formats--</option>
 				<option value="mp3">MP3</option>

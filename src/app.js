@@ -143,16 +143,28 @@ Core.prependTask = function(task) {
           for(var b = 0;b < fmtArr.length;b++) {
             var fmtObj = fmtArr[b];
             var action = this.addAction("ffmpeg");
-            action.itemName = filename;
             action.taskName = "Transcoding";
+            action.itemName = filename;
             action.addArgs(["-i", file]);
             var fmtData = this.getFormatLibrary(fmtObj);
             if(fmtData.audio) action.addArgs(["-c:a", fmtData.audio]);
             if(fmtData.video) action.addArgs(["-c:v", fmtData.video]);
             if(fmtData.args.length > 0) action.addArgs(fmtData.args);
-            action.addArgs(["-ar", "44100"]);
+            action.addArgs(["-ar", "44100", "-map_metadata", "-1"]);
             action.addArgs(["-y", "output/" + basename + "." + fmtObj]);
           }
+          break;
+        case "jsgames":
+          var action = this.addAction("ffmpeg");
+          action.taskName = "Transcoding";
+          action.itemName = filename;
+          action.addArgs(["-i", file]);
+          var fmtData = this.getFormatLibrary("ogg");
+          if(fmtData.audio) action.addArgs(["-c:a", fmtData.audio]);
+          if(fmtData.video) action.addArgs(["-c:v", fmtData.video]);
+          if(fmtData.args.length > 0) action.addArgs(fmtData.args);
+          action.addArgs(["-ar", "44100", "-map_metadata", "-1"]);
+          action.addArgs(["-y", "output/" + basename + ".ogg"]);
           break;
         case "mp3":
         case "ogg":

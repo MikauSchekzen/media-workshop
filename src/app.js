@@ -156,6 +156,7 @@ Task.prototype.start = function() {
 
     glob("input/*", {}, function(err, files) {
       this.files = files;
+      console.log(files);
       this.convert();
     }.bind(this));
   }
@@ -230,7 +231,7 @@ Task.prototype.getArgs = function() {
 }
 
 Task.prototype.getArgsProcessed = function() {
-  var str = this.getArgs().join(" ");
+  var str = this.getArgs().join("\n");
   if(this.type === Task.TYPE_TRANSCODE || this.type === Task.TYPE_MUX) {
     str = str.replace("%i", arguments[0]);
     str = str.replace("%o", arguments[1]);
@@ -238,7 +239,7 @@ Task.prototype.getArgsProcessed = function() {
   else if(this.type === Task.TYPE_DOWNLOAD) {
     str = str.replace("%i", this.value);
   }
-  return str.split(" ");
+  return str.split(/[\n\r]/);
 }
 
 Task.prototype.addAppHandling = function(app) {

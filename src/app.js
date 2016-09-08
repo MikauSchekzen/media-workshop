@@ -3,68 +3,251 @@ var path = require("path");
 var glob = require("glob");
 var spawn = require("child_process").spawn;
 
-// Make directories, if they don't exist yet
-try {
-	fs.mkdirSync("input");
-} catch(e) {}
-try {
-	fs.mkdirSync("output");
-} catch(e) {}
 
+//==============================================================================
+// Core
+//==============================================================================
 
 function Core() {}
 
-Core._actions = [];
-Core.audioCapableFormats = ["mp3", "ogg", "m4a", "wav", "mp4", "ogv", "mkv", "flv"];
-Core.videoCapableFormats = ["mp4", "ogv", "mkv", "flv", "gif"];
-Core.controlElementNames = [
-	"download_from_yt",
-	"transcode",
-	"mux",
-	"transcode_formats"
-];
+Core.tasks = [];
 
-Core.startTask = function(type) {
-  if(type === "youtube-dl") {
-    this.prependTask(type);
-    this.performAction();
+Core.init = function() {
+  this.createBaseFolders();
+  this.loadConfig();
+  this.initDocument();
+
+  this.running = false;
+}
+
+Core.getConverter = function(key) {
+  for(var a = 0;a < this.config.convert.length;a++) {
+    var obj = this.config.convert[a];
+    if(typeof obj === "object" && obj.key && obj.key === key) {
+      return obj;
+    }
   }
-  else {
-    this.getInputFiles(type);
+  return null;
+}
+
+Core.loadConfig = function() {
+  this.config = JSON.parse(fs.readFileSync("conf.json"));
+}
+
+Core.createBaseFolders = function() {
+  try {
+    fs.mkdirSync("input");
+  } catch(e) {}
+  try {
+    fs.mkdirSync("output");
+  } catch(e) {}
+}
+
+Core.initDocument = function() {
+  // Populate queue
+  // var elem = document.getElementById("queue_list");
+  // var len = parseInt(elem.size);
+  // while(elem.children.length < len) {
+  //   var newElem = document.createElement("option");
+  //   newElem.className = "queue_item";
+  //   elem.appendChild(newElem);
+  // }
+  // Populate convertion list
+  var elem = document.getElementById("transcode_formats");
+  for(var a = 0;a < this.config.convert.length;a++) {
+    var obj = this.config.convert[a];
+    var newElem = document.createElement("option");
+    if(typeof obj === "object") {
+      newElem.innerHTML = obj.name;
+      newElem.value = obj.key;
+    }
+    else if(typeof obj === "string") {
+      newElem.innerHTML = obj;
+    }
+    elem.appendChild(newElem);
   }
 }
 
-Core.performAction = function() {
-  if(this._actions.length > 0) {
-    this.lockControls();
-    var action = this._actions.shift();
-    var args = action.joinArgs();
-    var proc = spawn(action.app, args);
-    var elems = this.getProgressElement();
-    elems.task.value = action.taskName;
-    elems.item.value = action.itemName;
-    this.setAppCallbacks(proc, action.app);
+Core.addTask = function(type) {
+  if((type === Task.TYPE_TRANSCODE || type === Task.TYPE_MUX) && !this.getCurrentConverterKey()) {
+    return;
   }
-  else {
-    this.unlockControls();
+  var value = this.getTaskValue(type);
+  var task = new Task(type, value);
+  this.pushTask(task);
+}
+
+Core.pushTask = function(task) {
+  this.tasks.push(task);
+  var elem = document.getElementById("queue_list");
+  var newElem = document.createElement("option");
+  newElem.className = "queue_item";
+  elem.appendChild(newElem);
+  task.queueItem = newElem;
+  task.refreshQueueItem();
+}
+
+Core.getTaskValue = function(type) {
+  if(type === Task.TYPE_DOWNLOAD) {
+    var elem = document.getElementById("download_from_yt_list");
+    var value = elem.value;
+    elem.value = "";
+    return value;
+  }
+  else if(type === Task.TYPE_TRANSCODE || type === Task.TYPE_MUX) {
+    return this.getCurrentConverterKey();
+  }
+  return null;
+}
+
+Core.startTasks = function() {
+  if(!this.running) {
+    this.performTask();
   }
 }
 
-Core.setAppCallbacks = function(proc, app) {
-  // FFMPEG
-  if(app === "ffmpeg") {
-    proc.on("close", function() {
-      var elems = Core.getProgressElement();
-      elems.bar.value = "0";
-      elems.task.value = "";
-      elems.item.value = "";
-      Core.performAction();
-    });
-    proc.stderr.on("data", function(data) {
+Core.performTask = function() {
+  if(this.tasks.length > 0) {
+    this.running = true;
+    var task = this.tasks[0];
+    task.start();
+  }
+}
+
+Core.getCurrentConverterKey = function() {
+  var elem = document.getElementById("transcode_formats");
+  var option = elem.options[elem.selectedIndex];
+  if(option.value && this.getConverter(option.value)) {
+    return option.value;
+  }
+  return null;
+}
+
+
+//==============================================================================
+// Task
+//==============================================================================
+
+function Task() {
+  this.init.apply(this, arguments);
+}
+
+Task.TYPE_DOWNLOAD  = 0;
+Task.TYPE_TRANSCODE = 1;
+Task.TYPE_MUX       = 2;
+
+
+Task.prototype.init = function(type, value) {
+  if(!value) value = "";
+  this.initMembers();
+  this.type = type;
+  this.value = value;
+}
+
+Task.prototype.initMembers = function() {
+  this.type = Task.TYPE_TRANSCODE;
+  this.value = "";
+  this.queueItem = null;
+}
+
+Task.prototype.start = function() {
+  var taskElem = document.getElementById("progresstask");
+  if(this.type === Task.TYPE_TRANSCODE || this.type === Task.TYPE_MUX) {
+
+    glob("input/*", {}, function(err, files) {
+      this.files = files;
+      this.convert();
+    }.bind(this));
+  }
+  else if(this.type === Task.TYPE_DOWNLOAD) {
+    taskElem.value = "Downloading";
+    var app = spawn(this.getApp(), this.getArgsProcessed());
+    this.addAppHandling(app);
+  }
+}
+
+Task.prototype.convert = function() {
+  if(this.files.length > 0) {
+    var file = this.files.shift();
+    var taskElem = document.getElementById("progresstask");
+    var itemElem = document.getElementById("progressitem");
+
+    if(this.type === Task.TYPE_TRANSCODE) taskElem.value = "Transcoding";
+    else if(this.type === Task.TYPE_MUX) taskElem.value = "Muxing";
+    itemElem.value = file;
+
+    var name = path.basename(file, path.extname(file));
+    var app = spawn(this.getApp(), this.getArgsProcessed(file, "output/" + name));
+    this.addAppHandling(app);
+  }
+  else {
+    var oldTask = Core.tasks.shift();
+    oldTask.removeQueueItem();
+    Core.running = false;
+    Core.performTask();
+  }
+}
+
+Task.prototype.getApp = function() {
+  if(this.type === Task.TYPE_TRANSCODE || this.type === Task.TYPE_MUX) {
+    return "ffmpeg";
+  }
+  else if(this.type === Task.TYPE_DOWNLOAD) {
+    return "youtube-dl";
+  }
+  return null;
+}
+
+Task.prototype.refreshQueueItem = function() {
+  if(this.type === Task.TYPE_DOWNLOAD) {
+    this.queueItem.innerHTML = "Download: " + this.value;
+  }
+  else if(this.type === Task.TYPE_TRANSCODE) {
+    this.queueItem.innerHTML = "Transcode to: " + this.value;
+  }
+  else if(this.type === Task.TYPE_MUX) {
+    this.queueItem.innerHTML = "Mux to: " + this.value;
+  }
+}
+
+Task.prototype.removeQueueItem = function() {
+  this.queueItem.parentNode.removeChild(this.queueItem);
+}
+
+Task.prototype.getArgs = function() {
+  if(this.type === Task.TYPE_TRANSCODE) {
+    var obj = Core.getConverter(this.value);
+    if(obj.transcodeArgs) return obj.transcodeArgs;
+  }
+  else if(this.type === Task.TYPE_MUX) {
+    var obj = Core.getConverter(this.value);
+    if(obj.muxArgs) return obj.muxArgs;
+  }
+  else if(this.type === Task.TYPE_DOWNLOAD) {
+    return Core.config.download.args;
+  }
+  return null;
+}
+
+Task.prototype.getArgsProcessed = function() {
+  var str = this.getArgs().join(" ");
+  if(this.type === Task.TYPE_TRANSCODE || this.type === Task.TYPE_MUX) {
+    str = str.replace("%i", arguments[0]);
+    str = str.replace("%o", arguments[1]);
+  }
+  else if(this.type === Task.TYPE_DOWNLOAD) {
+    str = str.replace("%i", this.value);
+  }
+  return str.split(" ");
+}
+
+Task.prototype.addAppHandling = function(app) {
+  if(this.type === Task.TYPE_TRANSCODE || this.type === Task.TYPE_MUX) {
+    app.stderr.on("data", function(data) {
       var msg = data.toString();
-      var elems = Core.getProgressElement();
+      var barElem = document.getElementById("progressbar");
       // Get duration
-      var re = /Duration: (\d+):(\d+):(\d+)/i;
+      var re = /Duration: (\d+):(\d+):(\d+)/m;
       var result = re.exec(msg);
       var hour, minute, second, duration;
       if(result) {
@@ -72,7 +255,7 @@ Core.setAppCallbacks = function(proc, app) {
         minute = Number(result[2]);
         second = Number(result[3]);
         duration = second + (minute * 60) + ((hour * 60) * 60);
-        elems.bar.max = String(duration);
+        barElem.max = String(duration);
       }
       // Get progress
       re = /time=(\d+):(\d+):(\d+)/i;
@@ -82,28 +265,31 @@ Core.setAppCallbacks = function(proc, app) {
         minute = Number(result[2]);
         second = Number(result[3]);
         duration = second + (minute * 60) + ((hour * 60) * 60);
-        elems.bar.value = String(duration);
+        barElem.value = String(duration);
       }
     });
-  }
-  // YOUTUBE-DL
-  else if(app === "youtube-dl") {
-    proc.on("close", function() {
-      var elems = Core.getProgressElement();
-      elems.bar.value = "0";
-      elems.task.value = "";
-      elems.item.value = "";
-      Core.performAction();
+
+    var task = this;
+    app.on("close", function() {
+      var barElem = document.getElementById("progressbar");
+      barElem.value = "0";
+      var taskElem = document.getElementById("progresstask");
+      taskElem.value = "";
+      var itemElem = document.getElementById("progressitem");
+      itemElem.value = "";
+      task.convert();
     });
-    proc.stdout.on("data", function(data) {
+  }
+  else if(this.type === Task.TYPE_DOWNLOAD) {
+    app.stdout.on("data", function(data) {
       var msg = data.toString();
-      // console.log(msg);
-      var elems = Core.getProgressElement();
+      var barElem = document.getElementById("progressbar");
+      var itemElem = document.getElementById("progressitem");
       // Get name
       var re = /\[download\] Destination: input\\(.+)/;
       var result = re.exec(msg);
       if(result) {
-        elems.item.value = result[1];
+        itemElem.value = result[1];
       }
       // Download progress
       var re;
@@ -114,177 +300,25 @@ Core.setAppCallbacks = function(proc, app) {
       if(result) {
         var progress = Number(result[1]) + (Number(result[2]) / 10);
         progress = Math.floor(parseFloat(result[1]) * 10);
-        elems.bar.max = "1000";
-        elems.bar.value = String(progress);
+        barElem.max = "1000";
+        barElem.value = String(progress);
       }
+    });
+
+    app.on("close", function() {
+      var barElem = document.getElementById("progressbar");
+      barElem.value = "0";
+      var taskElem = document.getElementById("progresstask");
+      taskElem.value = "";
+      var itemElem = document.getElementById("progressitem");
+      itemElem.value = "";
+      var oldTask = Core.tasks.shift();
+      oldTask.removeQueueItem();
+      Core.running = false;
+      Core.performTask();
     });
   }
 }
 
-Core.getInputFiles = function(type) {
-  glob("input/*", {}, function(err, files) {
-    this.prependTask(type, files);
-    this.performAction();
-  }.bind(this));
-}
 
-Core.prependTask = function(task) {
-  // FFMPEG
-  if(task === "mux" || task === "transcode") {
-    var files = arguments[1];
-    var fmt = this.getFormat();
-    for(var a = 0;a < files.length;a++) {
-      var file = files[a];
-      var filename = path.basename(file);
-      var basename = path.basename(file, path.extname(file));
-      switch(fmt) {
-        case "rmmv":
-          var fmtArr = ["ogg", "m4a"];
-          for(var b = 0;b < fmtArr.length;b++) {
-            var fmtObj = fmtArr[b];
-            var action = this.addAction("ffmpeg");
-            action.taskName = "Transcoding";
-            action.itemName = filename;
-            action.addArgs(["-i", file]);
-            var fmtData = this.getFormatLibrary(fmtObj);
-            if(fmtData.audio) action.addArgs(["-c:a", fmtData.audio]);
-            if(fmtData.video) action.addArgs(["-c:v", fmtData.video]);
-            if(fmtData.args.length > 0) action.addArgs(fmtData.args);
-            action.addArgs(["-ar", "44100", "-map_metadata", "-1"]);
-            action.addArgs(["-y", "output/" + basename + "." + fmtObj]);
-          }
-          break;
-        case "jsgames":
-          var action = this.addAction("ffmpeg");
-          action.taskName = "Transcoding";
-          action.itemName = filename;
-          action.addArgs(["-i", file]);
-          var fmtData = this.getFormatLibrary("ogg");
-          if(fmtData.audio) action.addArgs(["-c:a", fmtData.audio]);
-          if(fmtData.video) action.addArgs(["-c:v", fmtData.video]);
-          if(fmtData.args.length > 0) action.addArgs(fmtData.args);
-          action.addArgs(["-ar", "44100", "-map_metadata", "-1"]);
-          action.addArgs(["-y", "output/" + basename + ".ogg"]);
-          break;
-        case "mp3":
-        case "ogg":
-        case "m4a":
-        case "wav":
-        case "mp4":
-        case "flv":
-        case "ogv":
-        case "mkv":
-        case "gif":
-          var action = this.addAction("ffmpeg");
-          action.itemName = filename;
-          action.addArgs(["-i", file]);
-          if(task === "mux") {
-            action.taskName = "Muxing";
-            if(this.audioCapableFormats.indexOf(fmt) !== -1) action.addArgs(["-c:a", "copy"]);
-            if(this.videoCapableFormats.indexOf(fmt) !== -1) action.addArgs(["-c:v", "copy"]);
-          }
-          else if(task === "transcode") {
-            action.taskName = "Transcoding";
-            var fmtData = this.getFormatLibrary(fmt);
-            if(fmtData.audio) action.addArgs(["-c:a", fmtData.audio]);
-            if(fmtData.video) action.addArgs(["-c:v", fmtData.video]);
-            if(fmtData.args.length > 0) action.addArgs(fmtData.args);
-          }
-          action.addArgs(["-y", "output/" + basename + "." + fmt]);
-          break;
-        default:
-          break;
-      }
-    }
-  }
-  // YOUTUBE-DL
-  else if(task === "youtube-dl") {
-    var link = document.getElementById("download_from_yt_list").value;
-    if(link.length > 0) {
-      var action = this.addAction("youtube-dl");
-      action.taskName = "Downloading";
-      action.itemName = "Getting Data";
-      action.addArgs([link, "-o", "input/%(title)s.%(ext)s", "--restrict-filenames"]);
-    }
-  }
-}
-
-Core.getFormatLibrary = function(format) {
-  if(format === "mp3") return { audio: "libmp3lame", video: null, args: [] };
-  else if(format === "ogg") return { audio: "libvorbis", video: null, args: [] };
-  else if(format === "m4a") return { audio: "aac", video: null, args: [] };
-  else if(format === "wav") return { audio: null, video: null, args: [] };
-  else if(format === "mp4") return { audio: null, video: "libx264", args: ["-preset", "veryfast", "-crf", "25"] };
-  else if(format === "flv") return { audio: null, video: "flv", args: [] };
-  else if(format === "ogv") return { audio: "libvorbis", video: "libtheora", args: ["-qscale:v", "6", "-qscale:a", "3"] };
-  else if(format === "mkv") return { audio: null, video: "libx264", args: ["-preset", "veryfast", "-crf", "25"] };
-  else if(format === "gif") return { audio: "", video: "", args: ["-pix_fmt", "rgb24", "-r", "12"] };
-  return { audio: null, video: null, args: [] };
-}
-
-Core.lockControls = function() {
-  for(var a = 0;a < this.controlElementNames.length;a++) {
-    var elem = document.getElementById(this.controlElementNames[a]);
-    elem.disabled = "disabled";
-  }
-}
-
-Core.unlockControls = function() {
-  for(var a = 0;a < this.controlElementNames.length;a++) {
-    var elem = document.getElementById(this.controlElementNames[a]);
-    elem.disabled = null;
-  }
-}
-
-Core.addAction = function(type) {
-  var action = new Action(type);
-  this._actions.push(action);
-  return action;
-}
-
-Core.getFormat = function() {
-  var elem = document.getElementById("transcode_formats");
-  return elem.options[elem.selectedIndex].value;
-}
-
-Core.getProgressElement = function() {
-  return {
-    bar: document.getElementById("progressbar"),
-    task: document.getElementById("progresstask"),
-    item: document.getElementById("progressitem")
-  };
-}
-
-
-/**
- * @class Action
- */
-function Action() {
-  this.init.apply(this, arguments);
-}
-
-Action.prototype.init = function(app) {
-  this.app = app;
-  this.args = [];
-  this.taskName = "";
-  this.itemName = "";
-}
-
-Action.prototype.addArgs = function(args, index) {
-  if(index === undefined) index = -1;
-  if(index < 0) index = this.args.length;
-  if(index <= this.args.length) {
-    this.args.splice(index, 0, args);
-    return true;
-  }
-  return false;
-}
-
-Action.prototype.joinArgs = function() {
-  var result = [];
-  for(let a = 0;a < this.args.length;a++) {
-    let argList = this.args[a];
-    result = result.concat(argList);
-  }
-  return result;
-}
+window.addEventListener("load", Core.init.bind(Core));

@@ -1,0 +1,89 @@
+body {
+  display: flex;
+  background-color: #21252b;
+  padding: 1em;
+  padding: 0;
+  column-count: 3;
+}
+
+div.group {
+  border: 1px solid #181a1f;
+  background-color: #282c34;
+  padding: 0.6em;
+  margin: 0.6em;
+}
+
+h1.group_title {
+  cursor: default;
+  font-size: 1.2em;
+  font-weight: normal;
+  font-family: "Verdana";
+  color: white;
+  position: relative;
+  left: 0.4em;
+  top: -1.6em;
+  margin-bottom: -1em;
+}
+
+
+#controls {
+  display: inline-block;
+  width: 30em;
+  height: 8em;
+}
+#download_from_yt {
+  width: 10em;
+}
+#download_from_yt_list {
+  width: 20em;
+}
+#transcode_formats {
+  margin-top: 0.6em;
+  margin-right: 2em;
+  width: 12em;
+}
+#transcode {
+  width: 6em;
+  margin-right: 1em;
+}
+#mux {
+  width: 6em;
+}
+#start_tasks {
+  margin-top: 0.6em;
+  width: 8em;
+  height: 2em;
+}
+
+#queue {
+  display: inline-block;
+  width: 24em;
+  height: 12em;
+}
+#queue_list {
+  width: 22em;
+}
+.queue_item:nth-child(odd) {
+  background-color: #cccccc;
+  color: black;
+}
+.queue_item:nth-child(even) {
+  background-color: #777777;
+  color: white;
+}
+
+#status {
+  display: inline-block;
+  width: 24em;
+  height: 8em;
+}
+#progressbar {
+  width: 22em;
+}
+#progresstask {
+  margin-top: 1em;
+  width: 22em;
+}
+#progressitem {
+  width: 22em;
+}

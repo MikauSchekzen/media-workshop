@@ -7,3 +7,4 @@ output_music/
 node_modules/
 *.log
 .atom-build.json
+*.lnk

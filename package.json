@@ -1,14 +1,14 @@
 {
   "name": "video-workshop",
   "version": "0.0.1",
-  "main": "index.html",
+  "main": "main.js",
   "private": true,
   "window": {
     "width": 1024,
     "height": 512
   },
   "scripts": {
-    "start": "nw ."
+    "start": "electron ."
   },
   "dependencies": {
     "glob": "^7.0.5"

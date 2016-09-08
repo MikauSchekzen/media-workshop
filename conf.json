@@ -1,0 +1,49 @@
+{
+  "convert": [
+    "-- Audio --",
+    {
+      "name": "MP3",
+      "key": "audio_mp3",
+      "transcodeArgs": ["-y", "-i", "%i", "-c:a", "libmp3lame", "-qscale:a", "3", "%o.mp3"],
+      "muxArgs": ["-y", "-i", "%i", "-c:a", "copy", "%o.mp3"]
+    },
+    {
+      "name": "OGG",
+      "key": "audio_ogg",
+      "transcodeArgs": ["-y", "-i", "%i", "-c:a", "libvorbis", "-qscale:a", "3", "%o.ogg"],
+      "muxArgs": ["-y", "-i", "%i", "-c:a", "copy", "%o.ogg"]
+    },
+    {
+      "name": "WAV",
+      "key": "audio_wav",
+      "transcodeArgs": ["-y", "-i", "%i", "-c:a", "pcm_s16le", "%o.wav"],
+      "muxArgs": ["-y", "-i", "%i", "-c:a", "copy", "%o.wav"]
+    },
+    {
+      "name": "HTML5 Games",
+      "key": "audio_html5",
+      "transcodeArgs": ["-y", "-i", "%i", "-c:a", "libvorbis", "-qscale:a", "3", "-map_metadata", "-1", "%o.ogg"]
+    },
+    "-- Video --",
+    {
+      "name": "MP4",
+      "key": "video_mp4",
+      "transcodeArgs": ["-y", "-i", "%i", "-c:v", "libx264", "-preset", "faster", "-c:a", "libmp3lame", "-qscale:a", "3", "%o.mp4"],
+      "muxArgs": ["-y", "-i", "%i", "-c:v", "copy", "-c:a", "copy", "%o.mp4"]
+    },
+    {
+      "name": "OGV",
+      "key": "video_ogv",
+      "transcodeArgs": ["-y", "-i", "%i", "-c:v", "libtheora", "-c:a", "libvorbis", "-qscale:v", "6", "-qscale:a", "3", "%o.ogv"],
+      "muxArgs": ["-y", "-i", "%i", "-c:v", "copy", "-c:a", "copy", "%o.ogv"]
+    },
+    {
+      "name": "GIF",
+      "key": "video_gif",
+      "transcodeArgs": ["-y", "-i", "%i", "-pix_fmt", "rgb24", "%o.gif"]
+    }
+  ],
+  "download": {
+    "args": ["%i", "-o", "input/%(title)s.%(ext)s", "--restrict-filenames"]
+  }
+}

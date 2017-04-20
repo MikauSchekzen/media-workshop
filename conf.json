@@ -4,25 +4,25 @@
     {
       "name": "MP3",
       "key": "audio_mp3",
-      "transcodeArgs": ["-y", "-i", "%i", "-c:a", "libmp3lame", "-qscale:a", "3", "%o.mp3"],
+      "transcodeArgs": ["-y", "-i", "%i", "-map", "0:a", "-c:a", "libmp3lame", "-qscale:a", "3", "%o.mp3"],
       "muxArgs": ["-y", "-i", "%i", "-c:a", "copy", "%o.mp3"]
     },
     {
       "name": "OGG",
       "key": "audio_ogg",
-      "transcodeArgs": ["-y", "-i", "%i", "-c:a", "libvorbis", "-qscale:a", "3", "%o.ogg"],
+      "transcodeArgs": ["-y", "-i", "%i", "-map", "0:a", "-c:a", "libvorbis", "-qscale:a", "3", "%o.ogg"],
       "muxArgs": ["-y", "-i", "%i", "-c:a", "copy", "%o.ogg"]
     },
     {
       "name": "WAV",
       "key": "audio_wav",
-      "transcodeArgs": ["-y", "-i", "%i", "-c:a", "pcm_s16le", "%o.wav"],
+      "transcodeArgs": ["-y", "-i", "%i", "-map", "0:a", "-c:a", "pcm_s16le", "%o.wav"],
       "muxArgs": ["-y", "-i", "%i", "-c:a", "copy", "%o.wav"]
     },
     {
       "name": "HTML5 Games",
       "key": "audio_html5",
-      "transcodeArgs": ["-y", "-i", "%i", "-c:a", "libvorbis", "-qscale:a", "3", "-map_metadata", "-1", "%o.ogg"]
+      "transcodeArgs": ["-y", "-i", "%i", "-map", "0:a", "-c:a", "libvorbis", "-qscale:a", "3", "-map_metadata", "-1", "%o.ogg"]
     },
     "-- Video --",
     {

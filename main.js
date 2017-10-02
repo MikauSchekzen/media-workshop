@@ -39,7 +39,10 @@ ipcMain.on("window", function(event, args) {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({ width: 1280, height: 720, autoHideMenuBar: true });
+  mainWindow = new BrowserWindow({ width: 1280, height: 720 });
+
+  // Remove menu
+  mainWindow.setMenu(null);
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');

@@ -287,7 +287,7 @@ Task.prototype.addAppHandling = function(app) {
       var barElem = document.getElementById("progressbar");
       var itemElem = document.getElementById("progressitem");
       // Get name
-      var re = /\[download\] Destination: input\\(.+)/;
+      var re = /\[download\] Destination: input[\\\/](.+)/;
       var result = re.exec(msg);
       if(result) {
         itemElem.value = result[1];

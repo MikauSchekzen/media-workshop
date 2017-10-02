@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "electron ."
+    "test": "electron . --debug"
   },
   "dependencies": {
     "glob": "^7.0.5"

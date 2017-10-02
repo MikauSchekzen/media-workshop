@@ -3,10 +3,6 @@
   "version": "0.0.1",
   "main": "main.js",
   "private": true,
-  "window": {
-    "width": 1024,
-    "height": 512
-  },
   "scripts": {
     "start": "electron ."
   },

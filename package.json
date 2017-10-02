@@ -4,7 +4,6 @@
   "main": "main.js",
   "private": true,
   "scripts": {
-    "start": "electron ."
     "test": "electron . --debug"
   },
   "dependencies": {

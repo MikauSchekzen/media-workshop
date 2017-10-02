@@ -1,3 +1,13 @@
+var cliOptions = {
+  debugMode: false
+};
+for(let a = 2;a < process.argv.length;a++) {
+  let arg = process.argv[a];
+  if(arg.match(/--DEBUG/i)) {
+    cliOptions.debugMode = true;
+  }
+}
+
 var electron = require("electron");  // Module to control application life.
 var app = electron.app;
 var BrowserWindow = electron.BrowserWindow;
@@ -38,7 +48,7 @@ app.on('ready', function() {
   mainWindow.webContents.on("devtools-opened", function() {
     mainWindow.focus();
   });
-  mainWindow.webContents.openDevTools({ mode: "detach" });
+  if(cliOptions.debugMode) mainWindow.webContents.openDevTools({ mode: "detach" });
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {

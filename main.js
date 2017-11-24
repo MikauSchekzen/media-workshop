@@ -38,8 +38,15 @@ ipcMain.on("window", function(event, args) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+  let workArea = electron.screen.getPrimaryDisplay().workArea;
+  let w = 1280;
+  let h = 720;
+  createMainWindow(Math.floor(workArea.x + workArea.width / 2 - w / 2), Math.floor(workArea.y + workArea.height / 2 - h / 2), w, h);
+});
+
+function createMainWindow(x, y, width, height) {
   // Create the browser window.
-  mainWindow = new BrowserWindow({ width: 1280, height: 720 });
+  mainWindow = new BrowserWindow({ x: x, y: y, width: width, height: height });
 
   // Remove menu
   mainWindow.setMenu(null);
@@ -60,4 +67,4 @@ app.on('ready', function() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
-});
+};

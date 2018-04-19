@@ -63,14 +63,14 @@ h1.group_title {
 #queue_list {
   width: 22em;
 }
-.queue_item:nth-child(odd) {
-  background-color: #cccccc;
-  color: black;
-}
-.queue_item:nth-child(even) {
-  background-color: #777777;
-  color: white;
-}
+/* .queue_item:nth-child(odd) { */
+  /* background-color: #cccccc; */
+  /* color: black; */
+/* } */
+/* .queue_item:nth-child(even) { */
+  /* background-color: #777777; */
+  /* color: white; */
+/* } */
 
 #status {
   display: inline-block;

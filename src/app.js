@@ -44,14 +44,6 @@ Core.createBaseFolders = function() {
 }
 
 Core.initDocument = function() {
-  // Populate queue
-  // var elem = document.getElementById("queue_list");
-  // var len = parseInt(elem.size);
-  // while(elem.children.length < len) {
-  //   var newElem = document.createElement("option");
-  //   newElem.className = "queue_item";
-  //   elem.appendChild(newElem);
-  // }
   // Populate convertion list
   var elem = document.getElementById("transcode_formats");
   for(var a = 0;a < this.config.convert.length;a++) {

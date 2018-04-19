@@ -1,53 +1,53 @@
 <html>
-	<head>
-		<title>Media Workshop</title>
-		<script type="text/javascript" src="src/app.js"></script>
-    <link rel="stylesheet" href="style.css"/>
-		<style type="text/css">
-		</style>
-	</head>
-	<body>
-		<div id="controls" class="group">
-      <h1 class="group_title">Selection</h1>
+    <head>
+        <title>Media Workshop</title>
+        <script type="text/javascript" src="src/app.js"></script>
+        <link rel="stylesheet" href="style.css"/>
+        <style type="text/css">
+        </style>
+    </head>
+    <body>
+        <div id="controls" class="group">
+            <h1 class="group_title">Selection</h1>
 
-      <input type="text" id="download_from_yt_list">
-			<button id="download_from_yt" onclick="Core.addTask(Task.TYPE_DOWNLOAD);">Download Video</button>
-      <br/>
+            <input type="text" id="download_from_yt_list">
+            <button id="download_from_yt" onclick="Core.addTask(Task.TYPE_DOWNLOAD);">Download Video</button>
+            <br/>
 
-      <select id="transcode_formats">
-        <!-- <option value="">--Audio formats--</option>
-        <option value="mp3">MP3</option>
-        <option value="ogg">OGG</option>
-        <option value="m4a">M4A</option>
-        <option value="wav">WAV</option>
-        <option value="jsgames">JavaScript Games</option>
-        <option value="rmmv">RPG Maker MV</option>
-        <option value="">--Video formats--</option>
-        <option value="mp4">MP4</option>
-        <option value="ogv">OGV</option>
-        <option value="mkv">MKV</option>
-        <option value="flv">FLV</option>
-        <option value="gif">GIF</option> -->
-      </select>
-			<button id="transcode" onclick="Core.addTask(Task.TYPE_TRANSCODE);">Transcode</button>
-			<button id="mux" onclick="Core.addTask(Task.TYPE_MUX);">Mux</button>
-      <br/>
-      <button id="start_tasks" onclick="Core.startTasks();">Start</button>
-		</div>
+            <select id="transcode_formats">
+                <!-- <option value="">--Audio formats--</option>
+                    <option value="mp3">MP3</option>
+                    <option value="ogg">OGG</option>
+                    <option value="m4a">M4A</option>
+                    <option value="wav">WAV</option>
+                    <option value="jsgames">JavaScript Games</option>
+                    <option value="rmmv">RPG Maker MV</option>
+                    <option value="">--Video formats--</option>
+                    <option value="mp4">MP4</option>
+                    <option value="ogv">OGV</option>
+                    <option value="mkv">MKV</option>
+                    <option value="flv">FLV</option>
+                    <option value="gif">GIF</option> -->
+            </select>
+            <button id="transcode" onclick="Core.addTask(Task.TYPE_TRANSCODE);">Transcode</button>
+            <button id="mux" onclick="Core.addTask(Task.TYPE_MUX);">Mux</button>
+            <br/>
+            <button id="start_tasks" onclick="Core.startTasks();">Start</button>
+        </div>
 
-    <div id="queue" class="group">
-      <h1 class="group_title">Queue</h1>
+        <div id="queue" class="group">
+            <h1 class="group_title">Queue</h1>
 
-      <select id="queue_list" size="8" multiple=multiple>
-      </select>
-    </div>
+            <select id="queue_list" size="8" multiple=multiple>
+            </select>
+        </div>
 
-		<div id="status" class="group">
-      <h1 class="group_title">Status</h1>
+        <div id="status" class="group">
+            <h1 class="group_title">Status</h1>
 
-			<progress id="progressbar" max="1" value="0"></progress>
-			<input type="text" id="progresstask" disabled value="Idle">
-			<input type="text" id="progressitem" disabled value="">
-		</div>
-	</body>
+            <progress id="progressbar" max="1" value="0"></progress>
+            <input type="text" id="progresstask" disabled value="Idle">
+            <input type="text" id="progressitem" disabled value="">
+        </div>
+    </body>
 </html>

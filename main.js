@@ -13,6 +13,9 @@ var app = electron.app;
 var BrowserWindow = electron.BrowserWindow;
 var ipcMain = electron.ipcMain;
 
+// Allow background rendering
+app.commandLine.appendSwitch("disable-renderer-backgrounding");
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is GCed.
 var mainWindow = null;
@@ -46,7 +49,12 @@ app.on('ready', function() {
 
 function createMainWindow(x, y, width, height) {
   // Create the browser window.
-  mainWindow = new BrowserWindow({ x: x, y: y, width: width, height: height });
+  mainWindow = new BrowserWindow({
+      x: x,
+      y: y,
+      width: width,
+      height: height
+  });
 
   // Remove menu
   mainWindow.setMenu(null);

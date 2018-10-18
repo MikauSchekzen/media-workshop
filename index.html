@@ -28,17 +28,18 @@
 
       <fieldset>
         <legend>Queue</legend>
-        <div id="queue_list_container">
-          <ol id="queue_list"></ol>
+        <div id="queue_container">
+          <div id="queue_list">
+          </div>
+          <button id="start_tasks" class="ui-button ui-widget ui-corner-all">Start Tasks</button>
         </div>
-        <button id="start_tasks" class="ui-button ui-widget ui-corner-all">Start Tasks</button>
       </fieldset>
 
       <fieldset>
         <legend>Status</legend>
-        <progress id="progressbar">
-          <div class="progressbar-label"></div>
-        </progress>
+        <div id="progressbar">
+          <div id="progressbar_label"></div>
+        </div>
       </fieldset>
     </div>
   </body>

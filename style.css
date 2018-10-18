@@ -7,15 +7,36 @@
   flex: 1 1 80px;
 }
 
-#queue_list_container {
-  display: inline-block;
-  min-width: 20em;
-  min-height: 12em;
-  overflow-x: hidden;
-  overflow-y: scroll;
+#queue_container {
+  display: flex;
+  align-items: center;
 }
 
-#progressbar {
-  min-width: 12em;
-  width: 100%;
+#queue_container>* {
+  flex: auto;
+}
+
+.ui-progressbar {
+  position: relative;
+}
+
+#progressbar_label {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+}
+
+#queue_list {
+  margin: 0;
+  padding: 0;
+  width: 20em;
+  min-height: 12em;
+  border: 1px solid #767676;
+  list-style-type: none;
+  font-family: "monospace";
+  overflow: scroll;
+}
+
+.queue_list_item {
+  border: 1px solid black;
 }

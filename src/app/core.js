@@ -1,8 +1,8 @@
 const fs = require("fs");
-const Task = require("./basic/task");
-const TaskManager = require("./managers/task");
 
 function Core() {};
+
+Core.config = {};
 
 Core.preStart = function(data) {
   this.dirs = data.dirs;
@@ -24,13 +24,30 @@ Core.initHTML = function() {
   $(".controlgroup").controlgroup();
   // Progress bar
   let progressBar = $("#progressbar");
-  let progressBarLabel = $("#progressbar-label");
+  let progressBarLabel = $("#progressbar_label");
   progressBar.progressbar({
+    max: 1000,
     value: false
   });
   progressBarLabel.text("Idle");
   // Queue list
-  $("#queue_list").selectable();
+  // $("#queue_list").selectable();
+  // Download button
+  $("#download_from_yt").on("click", (ev) => {
+    let subElem = $("#download_from_yt_list");
+    let url = subElem.val();
+    subElem.val("");
+    TaskManager.addTask({
+      type: Task.TYPE_DOWNLOAD,
+      metadata: {
+        url: url
+      }
+    });
+  });
+  // Start tasks button
+  $("#start_tasks").on("click", (ev) => {
+    TaskManager.startAllTasks();
+  });
 };
 
 Core.loadConfig = function() {
@@ -67,3 +84,6 @@ Core.parseConfig = function(config) {
 };
 
 module.exports = Core;
+
+const Task = require("./basic/task");
+const TaskManager = require("./managers/task");

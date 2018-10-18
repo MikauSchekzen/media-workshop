@@ -1,7 +1,21 @@
+#main {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#main>fieldset {
+  flex: 1 1 80px;
+}
+
 #queue_list_container {
   display: inline-block;
-  width: 20em;
-  height: 12em;
+  min-width: 20em;
+  min-height: 12em;
   overflow-x: hidden;
   overflow-y: scroll;
+}
+
+#progressbar {
+  min-width: 12em;
+  width: 100%;
 }

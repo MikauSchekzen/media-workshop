@@ -8,36 +8,38 @@
     </style>
   </head>
   <body>
-    <fieldset>
-      <legend>Tasks</legend>
-
+    <div id="main">
       <fieldset>
-        <legend>Download with YoutubeDL</legend>
-        <input type="text" id="download_from_yt_list" placeholder="Video URL">
-        <button id="download_from_yt" class="ui-button ui-widget ui-corner-all">Download Video</button>
+        <legend>Tasks</legend>
+
+        <fieldset>
+          <legend>Download with YoutubeDL</legend>
+          <input type="text" id="download_from_yt_list" placeholder="Video URL">
+          <button id="download_from_yt" class="ui-button ui-widget ui-corner-all">Download Video</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>FFMPEG Conversion</legend>
+          <select id="transcode_formats"></select>
+          <button id="transcode" class="ui-button ui-widget ui-corner-all">Transcode</button>
+          <button id="mux" class="ui-button ui-widget ui-corner-all">Mux</button>
+        </fieldset>
       </fieldset>
 
       <fieldset>
-        <legend>FFMPEG Conversion</legend>
-        <select id="transcode_formats"></select>
-        <button id="transcode" class="ui-button ui-widget ui-corner-all">Transcode</button>
-        <button id="mux" class="ui-button ui-widget ui-corner-all">Mux</button>
+        <legend>Queue</legend>
+        <div id="queue_list_container">
+          <ol id="queue_list"></ol>
+        </div>
+        <button id="start_tasks" class="ui-button ui-widget ui-corner-all">Start Tasks</button>
       </fieldset>
-    </fieldset>
 
-    <fieldset>
-      <legend>Queue</legend>
-      <div id="queue_list_container">
-        <ol id="queue_list"></ol>
-      </div>
-      <button id="start_tasks" class="ui-button ui-widget ui-corner-all">Start Tasks</button>
-    </fieldset>
-
-    <fieldset>
-      <legend>Status</legend>
-      <progress id="progressbar">
-        <div class="progressbar-label"></div>
-      </progress>
-    </fieldset>
+      <fieldset>
+        <legend>Status</legend>
+        <progress id="progressbar">
+          <div class="progressbar-label"></div>
+        </progress>
+      </fieldset>
+    </div>
   </body>
 </html>

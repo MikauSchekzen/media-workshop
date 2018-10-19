@@ -3,6 +3,9 @@ const fs = require("fs");
 function Core() {};
 
 Core.config = {};
+Core._uiSelect = {
+  transcodeFormat: ""
+};
 
 Core.preStart = function(data) {
   this.dirs = data.dirs;
@@ -30,8 +33,6 @@ Core.initHTML = function() {
     value: false
   });
   progressBarLabel.text("Idle");
-  // Queue list
-  // $("#queue_list").selectable();
   // Download button
   $("#download_from_yt").on("click", (ev) => {
     let subElem = $("#download_from_yt_list");
@@ -41,6 +42,15 @@ Core.initHTML = function() {
       type: Task.TYPE_DOWNLOAD,
       metadata: {
         url: url
+      }
+    });
+  });
+  // Transcode button
+  $("#transcode").on("click", (ev) => {
+    TaskManager.addTask({
+      type: Task.TYPE_TRANSCODE,
+      metadata: {
+        formatKey: this._uiSelect.transcodeFormat
       }
     });
   });
@@ -76,11 +86,18 @@ Core.parseConfig = function(config) {
       containerElem.append(lastOptGroup);
     }
     else if (lastOptGroup != null) {
+      if(!this._uiSelect.transcodeFormat) {
+        this._uiSelect.transcodeFormat = obj.key;
+      }
       let elem = $("<option value=\"" + obj.key + "\">" + obj.name + "</option>");
       lastOptGroup.append(elem);
     }
   }
-  containerElem.selectmenu();
+  containerElem.selectmenu({
+    select: (ev, ui) => {
+      this._uiSelect.transcodeFormat = ui.item.value;
+    }
+  });
 };
 
 module.exports = Core;

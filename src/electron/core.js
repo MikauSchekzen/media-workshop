@@ -2,6 +2,9 @@ const app = require("electron").app;
 const ipc = require("electron").ipcMain;
 const ArgumentManager = require("./managers/argument");
 
+app.disableHardwareAcceleration();
+
+
 function Core() {};
 
 Core._windows = [];

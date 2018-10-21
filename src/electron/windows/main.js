@@ -8,7 +8,10 @@ Window_Main.prototype.constructor = Window_Main;
 Window_Main.prototype.initialize = function() {
   Window_Base.prototype.initialize.call(this, {
     width: 800,
-    height: 600
+    height: 600,
+    webPreferences: {
+      backgroundThrottling: false
+    }
   });
   // this.centerPrimary();
   this.window.setMenu(null);

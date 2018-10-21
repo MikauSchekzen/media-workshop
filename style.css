@@ -21,8 +21,9 @@
 }
 
 #progressbar_label {
+  text-align: center;
+  width: 100%;
   position: absolute;
-  left: 50%;
   top: 4px;
 }
 

@@ -42,17 +42,7 @@ TaskManager.removeTask = function(task) {
 };
 
 TaskManager.getLabelForTask = function(task) {
-  if(task.type === Task.TYPE_NONE) {
-    return "Do nothing";
-  }
-  else if(task.type === Task.TYPE_DOWNLOAD) {
-    return "Download: " + task.metadata.url;
-  }
-  else if(task.type === Task.TYPE_TRANSCODE) {
-    let formatName = Core.config.convert.filter((obj) => { return obj.key === task.metadata.formatKey; })[0].name;
-    return "Transcode to " + formatName;
-  }
-  return "N/A";
+  return task.runScript("getLabel");
 };
 
 TaskManager.setProgressLabel = function(value) {

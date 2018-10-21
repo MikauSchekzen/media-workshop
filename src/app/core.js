@@ -1,4 +1,8 @@
 const fs = require("fs");
+const glob = require("glob");
+const path = require("path");
+global.requireBase = function(name) { return require(Core.dirs.appRoot + "/src/app/" + name); };
+global.DataManager = require("./managers/data");
 
 function Core() {};
 
@@ -6,19 +10,41 @@ Core.config = {};
 Core._uiSelect = {
   transcodeFormat: ""
 };
+Core.dirs = {};
 
 Core.preStart = function(data) {
   this.dirs = data.dirs;
 
-  this.start();
+  // Create primary directories
+  this.createPrimaryDirectories()
+  .catch((err) => { console.error(err); })
+  .then(() => { this.start(); });
+};
+
+Core.createPrimaryDirectories = function() {
+  return new Promise((resolve, reject) => {
+    fs.mkdir(this.dirs.appRoot + "/input", {}, (err) => {
+      if(err && err.code !== "EEXIST") reject(err);
+      else {
+        fs.mkdir(this.dirs.appRoot + "/output", {}, (err) => {
+          if(err && err.code !== "EEXIST") reject(err);
+          else resolve();
+        });
+      }
+    });
+  });
 };
 
 Core.start = function() {
-  this.initHTML();
   this.loadConfig()
   .catch((err) => { console.error(err); })
   .then((config) => {
     this.parseConfig(config);
+    this.loadTasks()
+    .catch((err) => { console.error(err); })
+    .then(() => {
+      this.initHTML();
+    });
   });
 };
 
@@ -32,14 +58,13 @@ Core.initHTML = function() {
     max: 1000,
     value: false
   });
-  progressBarLabel.text("Idle");
   // Download button
   $("#download_from_yt").on("click", (ev) => {
     let subElem = $("#download_from_yt_list");
     let url = subElem.val();
     subElem.val("");
     TaskManager.addTask({
-      type: Task.TYPE_DOWNLOAD,
+      type: "download",
       metadata: {
         url: url
       }
@@ -48,9 +73,20 @@ Core.initHTML = function() {
   // Transcode button
   $("#transcode").on("click", (ev) => {
     TaskManager.addTask({
-      type: Task.TYPE_TRANSCODE,
+      type: "convert",
       metadata: {
-        formatKey: this._uiSelect.transcodeFormat
+        formatKey: this._uiSelect.transcodeFormat,
+        subtype: "transcode"
+      }
+    });
+  });
+  // Mux button
+  $("#mux").on("click", (ev) => {
+    TaskManager.addTask({
+      type: "convert",
+      metadata: {
+        formatKey: this._uiSelect.transcodeFormat,
+        subtype: "mux"
       }
     });
   });
@@ -97,6 +133,25 @@ Core.parseConfig = function(config) {
     select: (ev, ui) => {
       this._uiSelect.transcodeFormat = ui.item.value;
     }
+  });
+};
+
+Core.loadTasks = function() {
+  // Load base task
+  let tasksRoot = Core.dirs.appRoot + "/tasks";
+  require(tasksRoot + "/base.js");
+  // Load rest of tasks
+  return new Promise((resolve, reject) => {
+    glob(tasksRoot + "/*.js", {}, (err, files) => {
+      if(err) reject(err);
+      else {
+        for(let a = 0;a < files.length;a++) {
+          let file = files[a];
+          if(path.basename(file) !== "base.js") require(file);
+        }
+        resolve();
+      }
+    });
   });
 };
 

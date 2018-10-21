@@ -14,47 +14,27 @@ Task.TYPE_MUX = 3;
  * metadata: metadata to add to the task
  */
 Task.prototype.initialize = function(options) {
-  this.type = options.type || Task.TYPE_NONE;
+  this.type = options.type || "base";
   this.metadata = options.metadata || {};
   this.elem = null;
   this.running = false;
 };
 
-Task.prototype.start = function() {
-  this.running = true;
-  if(this.type === Task.TYPE_NONE) {
-    this.end();
-  }
-  else if(this.type === Task.TYPE_DOWNLOAD) {
-    this.startDownload();
-  }
-  else if(this.type === Task.TYPE_TRANSCODE) {
-    this.startTranscode();
-  }
+Task.prototype.getSource = function() {
+  return DataManager.getData("task", this.type);
 };
 
-Task.prototype.startDownload = function() {
-  let args = Core.config.download.args.slice();
-  for(let a = 0;a < args.length;a++) {
-    let arg = args[a];
-    arg = arg.replace("%i", this.metadata.url);
-    args[a] = arg;
+Task.prototype.runScript = function(name) {
+  let args = [];
+  for(let a = 1;a < arguments.length;a++) {
+    args.push(arguments[a]);
   }
-  // Spawn process
-  TaskManager.setProgressLabel("Downloading...");
-  let proc = spawn("youtube-dl", args);
-  let gotData = false;
-  proc.stdout.on("data", (data) => {
-    let str = data.toString();
-    if(str.match(/\[download\]\s+([0-9]+\.[0-9]+)%.*/)) {
-      gotData = true;
-      let value = Math.floor(parseFloat(RegExp.$1) * 10);
-      TaskManager.setProgressValue(value);
-    }
-  });
-  proc.on("close", () => {
-    this.end();
-  });
+  return this.getSource()[name].apply(this, args);
+};
+
+Task.prototype.start = function() {
+  this.running = true;
+  this.runScript("start");
 };
 
 Task.prototype.startTranscode = function() {
